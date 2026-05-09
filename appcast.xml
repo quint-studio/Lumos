@@ -6,6 +6,17 @@
         <description>Lumos app updates</description>
         <language>en</language>
         <item>
+            <title>1.0.16</title>
+            <pubDate>Sat, 09 May 2026 05:34:17 +0000</pubDate>
+            <link>https://github.com/quint-studio/Lumos/releases/tag/v1.0.16</link>
+            <sparkle:fullReleaseNotesLink>https://github.com/quint-studio/Lumos/releases/tag/v1.0.16</sparkle:fullReleaseNotesLink>
+            <sparkle:version>22</sparkle:version>
+            <sparkle:shortVersionString>1.0.16</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/quint-studio/Lumos/releases/download/v1.0.16/Lumos-v1.0.16.dmg" length="1146129" type="application/octet-stream" sparkle:edSignature="j7COXGRLksbC21gF57z3FxsTBDE2BLHdQI921AqbJN7Yrexez3EC73Xgt40Mo14/ZMTdyGlIJ0bSrTO88g2NCw=="/>
+        </item>
+        <item>
             <title>1.0.14</title>
             <pubDate>Sat, 09 May 2026 05:27:39 +0000</pubDate>
             <link>https://github.com/quint-studio/Lumos/releases/tag/v1.0.14</link>
