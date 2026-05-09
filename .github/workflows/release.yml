@@ -41,6 +41,9 @@ jobs:
         env:
           TEAM_ID: ${{ secrets.NOTARYTOOL_TEAM_ID }}
         run: |
+          VERSION=${GITHUB_REF_NAME#v}   # v1.0.2 → 1.0.2
+          BUILD=${{ github.run_number }}
+
           xcodebuild archive \
             -project Lumos.xcodeproj \
             -scheme Lumos \
@@ -49,7 +52,9 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Developer ID Application" \
             DEVELOPMENT_TEAM="$TEAM_ID" \
-            PROVISIONING_PROFILE_SPECIFIER=""
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD"
 
       - name: Export & Sign
         env:

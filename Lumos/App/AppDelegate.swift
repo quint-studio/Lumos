@@ -10,6 +10,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         notificationManager.requestPermission()
         UNUserNotificationCenter.current().delegate = self
         NSApp.setActivationPolicy(.regular)
+        UpdateChecker.checkOnLaunch()
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {

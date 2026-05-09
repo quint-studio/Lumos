@@ -14,6 +14,11 @@ struct LumosApp: App {
         .windowToolbarStyle(.unifiedCompact(showsTitle: false))
         .commands {
             CommandGroup(replacing: .newItem) {}
+            CommandGroup(after: .appInfo) {
+                Button("Kiểm tra cập nhật...") {
+                    UpdateChecker.checkManually()
+                }
+            }
             AccountCommands()
         }
     }
