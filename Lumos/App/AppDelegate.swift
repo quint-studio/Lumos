@@ -1,6 +1,5 @@
 import AppKit
 import UserNotifications
-import WebKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     let accountManager = AccountManager()
@@ -20,40 +19,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         return true
     }
 
-    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+    func applicationWillTerminate(_ notification: Notification) {
         NSApp.dockTile.badgeLabel = nil
-        persistSessionCookies(for: accountManager.accounts) {
-            sender.reply(toApplicationShouldTerminate: true)
-        }
-        return .terminateLater
-    }
-
-    // Messenger dùng session cookies (không có expires) — WKWebsiteDataStore không giữ chúng
-    // giữa các lần chạy app. Fix: convert sang persistent cookies trước khi thoát.
-    private func persistSessionCookies(for accounts: [Account], completion: @escaping () -> Void) {
-        let group = DispatchGroup()
-
-        for account in accounts {
-            group.enter()
-            let store = WKWebsiteDataStore(forIdentifier: account.id)
-            store.httpCookieStore.getAllCookies { cookies in
-                let sessionCookies = cookies.filter { $0.isSessionOnly }
-                guard !sessionCookies.isEmpty else { group.leave(); return }
-
-                let inner = DispatchGroup()
-                for cookie in sessionCookies {
-                    var props = cookie.properties ?? [:]
-                    props[.expires] = Date(timeIntervalSinceNow: 30 * 24 * 3600) // 30 ngày
-                    if let persistent = HTTPCookie(properties: props) {
-                        inner.enter()
-                        store.httpCookieStore.setCookie(persistent) { inner.leave() }
-                    }
-                }
-                inner.notify(queue: .main) { group.leave() }
-            }
-        }
-
-        group.notify(queue: .main) { completion() }
     }
 
     // Called when user taps a notification while app is in foreground
