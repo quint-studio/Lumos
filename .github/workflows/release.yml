@@ -83,14 +83,13 @@ jobs:
             --keychain build.keychain \
             "$SPARKLE_B"
 
-          # 3. Ký Lumos.app (outer bundle)
-          codesign --force --options runtime \
+          # 3. Ký Lumos.app — dùng --deep để codesign tự xử lý versioned symlinks của Sparkle
+          codesign --force --deep --options runtime \
             --entitlements Lumos/Resources/Lumos.entitlements \
             --sign "$SIGN_ID" \
             --keychain build.keychain \
             "$APP"
 
-          # Verify outer bundle (không dùng --deep vì versioned framework gây ambiguous)
           codesign --verify --verbose "$APP"
 
       - name: Notarize
