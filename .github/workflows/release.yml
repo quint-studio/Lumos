@@ -77,11 +77,11 @@ jobs:
               "$bundle"
           done
 
-          # 2. Ký Sparkle.framework
+          # 2. Ký Sparkle.framework — phải ký Versions/B (actual bundle), không phải outer dir
           codesign --force --options runtime \
             --sign "$SIGN_ID" \
             --keychain build.keychain \
-            "$APP/Contents/Frameworks/Sparkle.framework"
+            "$APP/Contents/Frameworks/Sparkle.framework/Versions/B"
 
           # 3. Ký Lumos.app (outer bundle)
           codesign --force --options runtime \
