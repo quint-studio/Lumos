@@ -64,15 +64,34 @@ jobs:
           mkdir -p export
           cp -r "Lumos.xcarchive/Products/Applications/Lumos.app" export/
 
-          # Sign trực tiếp với codesign — chỉ định keychain rõ ràng
+          SIGN_ID="Developer ID Application"
+          APP="export/Lumos.app"
+
+          # Ký từ trong ra ngoài: XPC services → frameworks → app
+          # 1. Ký tất cả XPC services bên trong Sparkle.framework
+          find "$APP/Contents/Frameworks/Sparkle.framework" \
+            -name "*.xpc" -o -name "*.app" | while read bundle; do
+            codesign --force --options runtime \
+              --sign "$SIGN_ID" \
+              --keychain build.keychain \
+              "$bundle"
+          done
+
+          # 2. Ký Sparkle.framework
+          codesign --force --options runtime \
+            --sign "$SIGN_ID" \
+            --keychain build.keychain \
+            "$APP/Contents/Frameworks/Sparkle.framework"
+
+          # 3. Ký Lumos.app (outer bundle)
           codesign --force --options runtime \
             --entitlements Lumos/Resources/Lumos.entitlements \
-            --sign "Developer ID Application" \
+            --sign "$SIGN_ID" \
             --keychain build.keychain \
-            export/Lumos.app
+            "$APP"
 
           # Verify
-          codesign --verify --verbose export/Lumos.app
+          codesign --verify --deep --verbose "$APP"
 
       - name: Notarize
         env:
