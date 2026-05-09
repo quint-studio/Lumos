@@ -90,8 +90,8 @@ jobs:
             --keychain build.keychain \
             "$APP"
 
-          # Verify
-          codesign --verify --deep --verbose "$APP"
+          # Verify outer bundle (không dùng --deep vì versioned framework gây ambiguous)
+          codesign --verify --verbose "$APP"
 
       - name: Notarize
         env:
