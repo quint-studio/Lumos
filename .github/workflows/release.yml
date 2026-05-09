@@ -60,37 +60,37 @@ jobs:
         env:
           TEAM_ID: ${{ secrets.NOTARYTOOL_TEAM_ID }}
         run: |
-          # Copy app ra khỏi archive
+          # Tạo ExportOptions.plist với team ID thực tế
+          cat > ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>developer-id</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>signingCertificate</key>
+              <string>Developer ID Application</string>
+              <key>teamID</key>
+              <string>${TEAM_ID}</string>
+          </dict>
+          </plist>
+          EOF
+
+          # exportArchive tự xử lý nested framework signing đúng thứ tự
           mkdir -p export
-          cp -r "Lumos.xcarchive/Products/Applications/Lumos.app" export/
+          xcodebuild -exportArchive \
+            -archivePath Lumos.xcarchive \
+            -exportPath export \
+            -exportOptionsPlist ExportOptions.plist
 
-          SIGN_ID="Developer ID Application"
-          APP="export/Lumos.app"
-          SPARKLE_B="$APP/Contents/Frameworks/Sparkle.framework/Versions/B"
+          # exportArchive tạo ra export/Lumos/Lumos.app — move lên export/Lumos.app
+          if [ -d "export/Lumos/Lumos.app" ]; then
+            mv "export/Lumos/Lumos.app" "export/Lumos.app"
+          fi
 
-          # Ký từ trong ra ngoài — chỉ qua Versions/B (tránh ký lại qua symlink Current)
-          # 1. Ký nested .app và .xpc bên trong Versions/B
-          find "$SPARKLE_B" \( -name "*.xpc" -o -name "*.app" \) | while read bundle; do
-            codesign --force --options runtime \
-              --sign "$SIGN_ID" \
-              --keychain build.keychain \
-              "$bundle"
-          done
-
-          # 2. Ký Versions/B (actual framework bundle)
-          codesign --force --options runtime \
-            --sign "$SIGN_ID" \
-            --keychain build.keychain \
-            "$SPARKLE_B"
-
-          # 3. Ký Lumos.app — dùng --deep để codesign tự xử lý versioned symlinks của Sparkle
-          codesign --force --deep --options runtime \
-            --entitlements Lumos/Resources/Lumos.entitlements \
-            --sign "$SIGN_ID" \
-            --keychain build.keychain \
-            "$APP"
-
-          codesign --verify --verbose "$APP"
+          codesign --verify --verbose export/Lumos.app
 
       - name: Notarize
         env:
