@@ -97,6 +97,44 @@ jobs:
           TAG=${GITHUB_REF_NAME}
           bash scripts/create_dmg.sh "Lumos-${TAG}.dmg"
 
+      - name: Generate appcast
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          TAG=${GITHUB_REF_NAME}
+          DMG_FILE="Lumos-${TAG}.dmg"
+
+          # Download Sparkle tools
+          SPARKLE_VERSION="2.6.4"
+          curl -sL "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz" \
+            -o sparkle.tar.xz
+          mkdir -p sparkle_tools
+          tar -xf sparkle.tar.xz -C sparkle_tools
+
+          # Write private key to temp file
+          echo "$SPARKLE_PRIVATE_KEY" > /tmp/sparkle_private_key
+
+          # Generate appcast entry for this release
+          ./sparkle_tools/bin/generate_appcast \
+            --ed-key-file /tmp/sparkle_private_key \
+            --download-url-prefix "https://github.com/quint-studio/Lumos/releases/download/${TAG}/" \
+            --link "https://github.com/quint-studio/Lumos/releases/tag/${TAG}" \
+            --full-release-notes-url "https://github.com/quint-studio/Lumos/releases/tag/${TAG}" \
+            --maximum-versions 10 \
+            .
+
+          rm /tmp/sparkle_private_key
+
+      - name: Commit appcast
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin master
+          git checkout master
+          git add appcast.xml
+          git diff --cached --quiet || git commit -m "chore: update appcast for ${GITHUB_REF_NAME}"
+          git push origin master
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:

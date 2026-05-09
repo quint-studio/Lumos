@@ -30,6 +30,10 @@
 	<string>alert</string>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>Messenger cần quyền gửi thông báo để bạn không bỏ lỡ tin nhắn.</string>
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/quint-studio/Lumos/master/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>McBLfuUIXI+g1siET5SDy0VedoG5FhMZjDJyMRMbLjA=</string>
 	<key>WKAppBoundDomains</key>
 	<array>
 		<string>messenger.com</string>

@@ -1,15 +1,20 @@
 import AppKit
 import UserNotifications
+import Sparkle
 
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
     let accountManager = AccountManager()
     let notificationManager = NotificationManager()
+    let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true,
+        updaterDelegate: nil,
+        userDriverDelegate: nil
+    )
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         notificationManager.requestPermission()
         UNUserNotificationCenter.current().delegate = self
         NSApp.setActivationPolicy(.regular)
-        UpdateChecker.checkOnLaunch()
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {

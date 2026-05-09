@@ -16,7 +16,7 @@ struct LumosApp: App {
             CommandGroup(replacing: .newItem) {}
             CommandGroup(after: .appInfo) {
                 Button("Kiểm tra cập nhật...") {
-                    UpdateChecker.checkManually()
+                    appDelegate.updaterController.updater.checkForUpdates()
                 }
             }
             AccountCommands()

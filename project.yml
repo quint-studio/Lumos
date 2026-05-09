@@ -16,6 +16,11 @@ settings:
     MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
 
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.6.0
+
 targets:
   Lumos:
     type: application
@@ -25,6 +30,9 @@ targets:
       - path: Lumos
     resources:
       - path: Lumos/Resources/notification_bridge.js
+    dependencies:
+      - package: Sparkle
+        product: Sparkle
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.personal.lumos
