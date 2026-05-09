@@ -75,11 +75,16 @@ jobs:
           TEAM_ID: ${{ secrets.NOTARYTOOL_TEAM_ID }}
           APP_PASSWORD: ${{ secrets.NOTARYTOOL_APP_PASSWORD }}
         run: |
-          xcrun notarytool submit export/Lumos.app \
+          # Zip app để submit (notarytool không nhận .app trực tiếp)
+          ditto -c -k --keepParent export/Lumos.app export/Lumos.zip
+
+          xcrun notarytool submit export/Lumos.zip \
             --apple-id "$APPLE_ID" \
             --team-id "$TEAM_ID" \
             --password "$APP_PASSWORD" \
             --wait
+
+          # Staple ticket vào .app gốc
           xcrun stapler staple export/Lumos.app
 
       - name: Create DMG
