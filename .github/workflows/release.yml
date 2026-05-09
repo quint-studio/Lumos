@@ -52,11 +52,22 @@ jobs:
             PROVISIONING_PROFILE_SPECIFIER=""
 
       - name: Export & Sign
+        env:
+          TEAM_ID: ${{ secrets.NOTARYTOOL_TEAM_ID }}
         run: |
-          xcodebuild -exportArchive \
-            -archivePath Lumos.xcarchive \
-            -exportPath export \
-            -exportOptionsPlist ExportOptions.plist
+          # Copy app ra khỏi archive
+          mkdir -p export
+          cp -r "Lumos.xcarchive/Products/Applications/Lumos.app" export/
+
+          # Sign trực tiếp với codesign — chỉ định keychain rõ ràng
+          codesign --force --options runtime \
+            --entitlements Lumos/Resources/Lumos.entitlements \
+            --sign "Developer ID Application" \
+            --keychain build.keychain \
+            export/Lumos.app
+
+          # Verify
+          codesign --verify --verbose export/Lumos.app
 
       - name: Notarize
         env:
