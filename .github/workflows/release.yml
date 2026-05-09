@@ -35,6 +35,8 @@ jobs:
           rm /tmp/cert.p12
 
       - name: Archive
+        env:
+          TEAM_ID: ${{ secrets.NOTARYTOOL_TEAM_ID }}
         run: |
           xcodebuild archive \
             -project Lumos.xcodeproj \
@@ -42,7 +44,9 @@ jobs:
             -configuration Release \
             -archivePath Lumos.xcarchive \
             CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Developer ID Application"
+            CODE_SIGN_IDENTITY="Developer ID Application" \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            PROVISIONING_PROFILE_SPECIFIER=""
 
       - name: Export & Sign
         run: |
