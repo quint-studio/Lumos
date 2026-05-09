@@ -18,8 +18,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         return true
     }
 
-    func applicationWillTerminate(_ notification: Notification) {
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         NSApp.dockTile.badgeLabel = nil
+        // Give WebKit time to flush WKWebsiteDataStore to disk before exit
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            sender.reply(toApplicationShouldTerminate: true)
+        }
+        return .terminateLater
     }
 
     // Called when user taps a notification while app is in foreground
