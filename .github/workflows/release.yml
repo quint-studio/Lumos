@@ -147,8 +147,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Lưu appcast đã được generate ra trước khi switch branch
+          cp appcast.xml /tmp/appcast_updated.xml
           git fetch origin master
           git checkout master
+          cp /tmp/appcast_updated.xml appcast.xml
           git add appcast.xml
           git diff --cached --quiet || git commit -m "chore: update appcast for ${GITHUB_REF_NAME}"
           git push origin master
