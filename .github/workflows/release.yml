@@ -66,22 +66,22 @@ jobs:
 
           SIGN_ID="Developer ID Application"
           APP="export/Lumos.app"
+          SPARKLE_B="$APP/Contents/Frameworks/Sparkle.framework/Versions/B"
 
-          # Ký từ trong ra ngoài: XPC services → frameworks → app
-          # 1. Ký tất cả XPC services bên trong Sparkle.framework
-          find "$APP/Contents/Frameworks/Sparkle.framework" \
-            -name "*.xpc" -o -name "*.app" | while read bundle; do
+          # Ký từ trong ra ngoài — chỉ qua Versions/B (tránh ký lại qua symlink Current)
+          # 1. Ký nested .app và .xpc bên trong Versions/B
+          find "$SPARKLE_B" \( -name "*.xpc" -o -name "*.app" \) | while read bundle; do
             codesign --force --options runtime \
               --sign "$SIGN_ID" \
               --keychain build.keychain \
               "$bundle"
           done
 
-          # 2. Ký Sparkle.framework — phải ký Versions/B (actual bundle), không phải outer dir
+          # 2. Ký Versions/B (actual framework bundle)
           codesign --force --options runtime \
             --sign "$SIGN_ID" \
             --keychain build.keychain \
-            "$APP/Contents/Frameworks/Sparkle.framework/Versions/B"
+            "$SPARKLE_B"
 
           # 3. Ký Lumos.app (outer bundle)
           codesign --force --options runtime \
