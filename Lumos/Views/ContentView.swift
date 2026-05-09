@@ -46,6 +46,15 @@ struct ContentView: View {
                 .help("Tải lại (⌘R)")
                 .keyboardShortcut("r", modifiers: .command)
             }
+
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    (NSApp.delegate as? AppDelegate)?.updaterController.updater.checkForUpdates()
+                } label: {
+                    Image(systemName: "arrow.down.circle")
+                }
+                .help("Kiểm tra cập nhật")
+            }
         }
         // Cmd+\ để toggle sidebar
         .background {
