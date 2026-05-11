@@ -43,6 +43,10 @@ final class LumosWebViewController: NSObject {
         webView.allowsBackForwardNavigationGestures = true
         webView.pageZoom = 0.8
 
+        #if DEBUG
+        webView.isInspectable = true
+        #endif
+
         super.init()
 
         // Add message handlers after super.init
@@ -50,6 +54,7 @@ final class LumosWebViewController: NSObject {
         userContentController.add(self, name: "badgeCount")
 
         webView.navigationDelegate = self
+        webView.uiDelegate = self
         load()
     }
 
@@ -122,14 +127,35 @@ extension LumosWebViewController: WKNavigationDelegate {
             return
         }
 
+        // Allow inert/iframe transitions (about:blank, about:srcdoc) — used by JS for
+        // postMessage targets, sandboxed iframes, and window.open popup hand-offs.
+        if url.scheme == "about" {
+            decisionHandler(.allow)
+            return
+        }
+
         let host = url.host ?? ""
+        // Meta family domains used during messenger/facebook/instagram login flows
+        // (incl. Accounts Center: accountscenter.meta.com, meta.com splash, fbcdn assets,
+        //  fbsbx.com which hosts the pre-auth reCAPTCHA iframe).
         let isAllowedDomain = host == "messenger.com" || host.hasSuffix(".messenger.com")
                            || host == "facebook.com"  || host.hasSuffix(".facebook.com")
-                           || host == "instagram.com" || host.hasSuffix(".instagram.com") // FB login CDN
+                           || host == "instagram.com" || host.hasSuffix(".instagram.com")
+                           || host == "meta.com"      || host.hasSuffix(".meta.com")
+                           || host == "fb.com"        || host.hasSuffix(".fb.com")
+                           || host == "fbsbx.com"     || host.hasSuffix(".fbsbx.com")
+                           || host.hasSuffix(".fbcdn.net")
+                           // Google reCAPTCHA used inside FB's pre-auth captcha iframe.
+                           || host == "google.com"    || host.hasSuffix(".google.com")
+                           || host == "gstatic.com"   || host.hasSuffix(".gstatic.com")
+                           || host == "recaptcha.net" || host.hasSuffix(".recaptcha.net")
 
         if isAllowedDomain {
             decisionHandler(.allow)
         } else {
+            #if DEBUG
+            print("[Lumos] Blocked navigation: \(url.absoluteString) (type: \(navigationAction.navigationType.rawValue))")
+            #endif
             // Open external links in default browser, only http/https schemes
             if navigationAction.navigationType == .linkActivated,
                let scheme = url.scheme, scheme == "https" || scheme == "http" {
@@ -137,5 +163,29 @@ extension LumosWebViewController: WKNavigationDelegate {
             }
             decisionHandler(.cancel)
         }
+    }
+}
+
+// MARK: - WKUIDelegate
+extension LumosWebViewController: WKUIDelegate {
+    // Some Meta login flows open a popup via window.open(). Without this delegate
+    // WKWebView silently drops the request, leaving the user stuck on a blank/Meta-icon page.
+    // Load the popup URL into the current webview instead of creating a new window.
+    func webView(_ webView: WKWebView,
+                 createWebViewWith configuration: WKWebViewConfiguration,
+                 for navigationAction: WKNavigationAction,
+                 windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if navigationAction.targetFrame == nil, let url = navigationAction.request.url {
+            let host = url.host ?? ""
+            let isMetaFamily = host.hasSuffix("messenger.com") || host.hasSuffix("facebook.com")
+                            || host.hasSuffix("instagram.com") || host.hasSuffix("meta.com")
+                            || host.hasSuffix("fb.com")
+            if isMetaFamily {
+                webView.load(navigationAction.request)
+            } else if let scheme = url.scheme, scheme == "https" || scheme == "http" {
+                NSWorkspace.shared.open(url)
+            }
+        }
+        return nil
     }
 }

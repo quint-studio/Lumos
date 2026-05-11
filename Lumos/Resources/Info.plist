@@ -30,12 +30,5 @@
 	<string>alert</string>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>Messenger cần quyền gửi thông báo để bạn không bỏ lỡ tin nhắn.</string>
-	<key>WKAppBoundDomains</key>
-	<array>
-		<string>messenger.com</string>
-		<string>www.messenger.com</string>
-		<string>facebook.com</string>
-		<string>www.facebook.com</string>
-	</array>
 </dict>
 </plist>

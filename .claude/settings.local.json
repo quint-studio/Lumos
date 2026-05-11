@@ -3,7 +3,21 @@
     "allow": [
       "Bash(xcodegen generate *)",
       "Bash(xcodebuild -project Messenger.xcodeproj -scheme Messenger -configuration Debug build CODE_SIGN_IDENTITY=\"-\" CODE_SIGNING_REQUIRED=NO)",
-      "Bash(xcodebuild -project Msg.xcodeproj -scheme Msg -configuration Debug build CODE_SIGN_IDENTITY=\"-\" CODE_SIGNING_REQUIRED=NO)"
+      "Bash(xcodebuild -project Msg.xcodeproj -scheme Msg -configuration Debug build CODE_SIGN_IDENTITY=\"-\" CODE_SIGNING_REQUIRED=NO)",
+      "Bash(mkdir -p /Users/nguyenkhang/Khang_Data/Sides/lumos-v2/docs/superpowers/specs)",
+      "Read(//Users/nguyenkhang/Khang_Data/Sides/lumos-v2/docs/superpowers/**)",
+      "Bash(git *)",
+      "Read(//private/tmp/**)",
+      "Bash(rm -rf lumos-v2-bootstrap)",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(rsync *)",
+      "Bash(cargo check *)",
+      "Bash(npx tailwindcss *)",
+      "Bash(npm run *)",
+      "Bash(cargo test *)",
+      "Bash(node --check public/notification_bridge.js)",
+      "Bash(xcodebuild -project Lumos.xcodeproj -scheme Lumos -configuration Debug build)"
     ]
   }
 }
